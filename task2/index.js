@@ -1,72 +1,105 @@
-const tasks = []
-const filter = () => true;
-const tasksRoot = document.querySelector('ul');
-const inputElement = document.querySelector('input');
+const tasks = [];
+const list = document.querySelector('.task-list')
 
-tasksRoot.addEventListener('click', (e) => {
-    const id = e.target.getAttribute('data-id');
-    const action = e.target.getAttribute('data-action');
-    if (id) {
-        switch(action) {
-            case 'toggle':
-                tasks.forEach(x => {
-                    if(x.id == id) {
-                        x.isComplited = !x.isComplited;
-                    }
-                });
-                break;
-            case 'delete':
-                tasks.forEach(x => {
-                    if(x.id == id) {
-                        x.isDeleted = !x.isDeleted;
-                    }
-                });
-                break;
-        }
-        renderList();
+function createTask(task) {
+    let deleteBtn = document.querySelector('.delete-btn')
+    let nodeLi = document.createElement('li')
+    let span = document.createElement('span')
+    span.innerText = task.text
+    let checkbox = document.createElement('input')
+    checkbox.type = 'checkbox'
+    checkbox.class = 'taskCheckbox'
+    if (task.isComplited) {
+        span.style.textDecoration = 'line-through'
+        checkbox.checked = true
+        deleteBtn.hidden = false
     }
-});
 
-document.querySelector('[data-action="filter-active"]', () => {
-    console.log('active');
-    filter = (x) => !x.isDeleted;
-    renderList();
-});
+    checkbox.onchange = () => {
+        checkbox.checked ? span.style.textDecoration = 'line-through' : span.style.textDecoration = 'none'
+        tasks.forEach(task => {
+            if (task.text == span.innerText) {
+                task.isComplited = !task.isComplited
+                renderList()
+            }
+        })
 
-document.querySelector('#trash', () => {
-    filter = (x) => x.isDeleted;
-    renderList();
-});
+    }
+
+    nodeLi.appendChild(span)
+    nodeLi.appendChild(checkbox)
+
+    if (task.isDeleted) {
+        deleteBtn.hidden = true
+        console.log('asfshlgkdsGDL')
+        let restorBtn = document.createElement('button')
+        restorBtn.innerText = 'Restore'
+        restorBtn.onclick = () => {
+            tasks.forEach(task => {
+                if (task.text == span.innerText) {
+                    task.isDeleted = !task.isDeleted
+                    showTrash()
+                }
+            })
+        }
+        nodeLi.appendChild(restorBtn)
+    }
+
+    return nodeLi
+}
+
+function renderList() {
+    let deleteBtn = document.querySelector('.delete-btn')
+    deleteBtn.hidden = true
+    list.innerHTML = ''
+    for (const task of tasks) {
+        if (!task.isDeleted) list.appendChild(createTask(task))
+    }
+}
 
 
 function addTask() {
-    const text = inputElement.value;
+    const text = document.querySelector('.input').value
     const data = {
         id: Date.now(),
         text: text,
         isComplited: false,
-        isDeleted: false,
+        isDeleted: false
     }
     tasks.push(data)
-    renderList();
+    renderList(data)
 }
 
-function renderList() {
-    tasksRoot.innerHTML = tasks.filter(x => filter(x)).reduce((acc, current) => {
-        acc += renderItem(current);
-        return acc;
-    }, '');
+function deleteTask() {
+    tasks.forEach((task) => {
+        if (task.isComplited) task.isDeleted = true
+    })
+    renderList()
+
+    console.log(tasks)
 }
 
-function renderItem(item) {
-    return `
-        <li class="${item.isComplited ? 'completed' : ''}">
-            ${item.text}
-            <input data-id="${item.id}" data-action="toggle" type="checkbox" ${item.isComplited ? 'checked' : ''}/>
-        </li>
-    `;
+
+function showTrash() {
+    list.innerHTML = ''
+    tasks.filter(task => task.isDeleted == true).forEach((task) => {
+        list.appendChild(createTask(task))
+    })
+    if (list.innerHTML == '') renderList()
+}
+const createBtn = document.querySelector('.create-btn')
+createBtn.addEventListener('click', addTask)
+const checkboxAll = document.querySelector('.checkboxAll')
+checkboxAll.onchange = () => {
+    checkboxAll.checked ? tasks.forEach(task => task.isComplited = true) : tasks.forEach(task => task.isComplited = false)
+    renderList()
 }
 
-const createButton = document.querySelector('button')
+const deleteBtn = document.querySelector('.delete-btn')
+deleteBtn.addEventListener('click', deleteTask)
+const trashBtn = document.querySelector('.trash-btn')
+trashBtn.addEventListener('click', showTrash)
 
-createButton.addEventListener('click', addTask)
+
+
+renderList()

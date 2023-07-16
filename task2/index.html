@@ -4,18 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <style>
-        .completed {
-            text-decoration: line-through;
-        }
-    </style>
 </head>
 <body>
-    <ul></ul>
-    <input class="task-text" type="text" placeholder="enter text">
-    <button class="create">Создать</button>
-    <button data-action="filter-active">Активные</button>
-    <button id="trash">Корзина</button>
+    <div class="create-block">
+        <input class="input" type="text" placeholder="Text">
+        <button class="create-btn">Create</button>
+        <button class="delete-btn" hidden>Delete</button>
+        <input class="checkboxAll" type="checkbox">
+        <label>ALL</label>
+        <button class="trash-btn">Trash</button>
+    </div>
+    <ul class="task-list"></ul>
     <script src="index.js"></script>
 </body>
 </html>
